@@ -1,4 +1,4 @@
-from flask import Flask, request, redirect, session
+from flask import Flask, render_template, request, redirect, session
 
 app = Flask(__name__)
 
@@ -10,32 +10,39 @@ users = {
     'user2': 'password2'
 }
 
-@app.route('/login', methods=['GET', 'POST'])
-def login():
+@app.route('/')
+def view_form():
+    return render_template('login.html')
+
+
+@app.route('/handle_get', methods=['GET'])
+def handle_get():
+    if request.method == 'GET':
+        username = request.args['username']
+        password = request.args['password']
+        print(username, password)
+        if username in users and users[username] == password:
+            return '<h1>Welcome!!!</h1>'
+        else:
+            return '<h1>invalid credentials!</h1>'
+    else:
+        return render_template('login.html')
+
+@app.route('/handle_post', methods=['POST'])
+def handle_post():
     if request.method == 'POST':
-        # Get the username and password from the form
         username = request.form['username']
         password = request.form['password']
-
-        # Check if the username and password are correct
+        print(username, password)
         if username in users and users[username] == password:
-            # Store the logged-in status in the session
-            session['logged_in'] = True
-
-            # Redirect to the home page
-            return 'Login successful'
+            return '<h1>Welcome!!!</h1>'
         else:
-            # The login was unsuccessful
-            return 'Invalid username or password'
+            return '<h1>invalid credentials!</h1>'
     else:
-        # Show the login form (GET Method)
-        return '''
-            <form method="post">
-                <input type="text" name="username" placeholder="Username">
-                <input type="password" name="password" placeholder="Password">
-                <input type="submit" value="Log In">
-            </form>
-        '''
+        return render_template('login.html')
+
+
+
 
 @app.route('/logout')
 def logout():
